@@ -2,7 +2,7 @@
 
 ## Overview
 
-M5Stack-**UNIT Ameter**
+M5Stack-**UNIT Ameter &  Vmeter**
 
 ## Related Link
 
@@ -10,4 +10,5 @@ M5Stack-**UNIT Ameter**
 
 ## License
 
-[UNIT Ameter - MIT](LICENSE)
+[UNIT Ameter & Vmeter - MIT](LICENSE)
+
