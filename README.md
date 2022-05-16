@@ -6,7 +6,7 @@ M5Stack-**UNIT Ameter &  Vmeter**
 
 ## Related Link
 
-[Docment & Datasheet](https://docs.m5stack.com/en/unit/ameter)
+[Document & Datasheet](https://docs.m5stack.com/en/unit/ameter)
 
 ## License
 
