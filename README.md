@@ -1,12 +1,17 @@
-# M5_ADS1115
+# M5-ADS1115
 
 ## Overview
 
-M5Stack-**UNIT Ameter &  Vmeter**
+### SKU:U086/U087
+
+Contains M5Stack **UNIT Ameter & Vmeter** related case programs.
 
 ## Related Link
 
-[Document & Datasheet](https://docs.m5stack.com/en/unit/ameter)
+[Document & Datasheet - M5Unit-Ameter](https://docs.m5stack.com/en/unit/ameter)
+
+[Document & Datasheet - M5Unit-Vmeter](https://docs.m5stack.com/en/unit/vmeter)
+
 
 ## License
 
