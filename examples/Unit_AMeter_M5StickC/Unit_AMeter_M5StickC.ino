@@ -1,8 +1,8 @@
 /*
 *******************************************************************************
 * Copyright (c) 2021 by M5Stack
-*                  Equipped with M5Core sample source code
-*                          配套  M5Core 示例源代码
+*                  Equipped with M5StickC sample source code
+*                          配套  M5StickC 示例源代码
 * Visit for more information：https://docs.m5stack.com/en/unit/ameter
 * 获取更多资料请访问：https://docs.m5stack.com/zh_CN/unit/ameter
 *
@@ -12,12 +12,13 @@
   Please connect to Port A,Measure current and display.
   请连接端口A,测量电流并显示到屏幕上
   Pay attention: EEPROM (0x51) has built-in calibration parameters when leaving
-  the factory. Please do not write to the EEPROM, otherwise the calibration data
-  will be overwritten and the measurement results will be inaccurate.
-  注意:EEPROM(0x51)在出厂时具有内置的校准参数。请不要写入EEPROM，否则校准数据会被覆盖，测量结果会不准确。
+the factory. Please do not write to the EEPROM, otherwise the calibration data
+will be overwritten and the measurement results will be inaccurate. 注意: EEPROM
+(0x51)在出厂时具有内置的校准参数。请不要写入EEPROM，否则校准数据会被覆盖，测量结果会不准确。
 */
 
-#include "M5Stack.h"
+#include <M5StickC.h>
+
 #include "M5_ADS1115.h"
 
 Ammeter ammeter;
@@ -33,9 +34,7 @@ int16_t hope = 0.0;
 ammeterGain_t now_gain = PAG_512;
 
 void setup(void) {
-    M5.begin();        // Init M5Stack.  初始化M5Stack
-    M5.Power.begin();  // Init power  初始化电源模块
-
+    M5.begin();  // Init M5StickC.  初始化M5StickC
     Wire.begin();
 
     ammeter.setMode(SINGLESHOT);
@@ -48,10 +47,13 @@ void setup(void) {
     // | PAG_2048 |        32            |
     // | PAG_512  |        16            |
     // | PAG_256  |        8             |
-    M5.Lcd.setTextFont(4);  // Set font to 4 point font.  设置字体为4号字体
+
+    M5.Lcd.fillScreen(BLACK);
+    M5.Lcd.setTextFont(1);  // Set font to 1 point font.  设置字体为1号字体
+
     M5.Lcd.setCursor(
-        52, 210);  // Set the cursor at (52,210).  将光标设置在(52, 210)
-    M5.Lcd.printf("2A                            SAVE");
+        30, 150);  // Set the cursor at (30, 150).  将光标设置在(30, 150)
+    M5.Lcd.printf("2A");
 }
 
 void loop(void) {
@@ -68,26 +70,8 @@ void loop(void) {
         }
     }
 
-    if (M5.BtnC.wasPressed()) {
-        bool success = ammeter.saveCalibration2EEPROM(now_gain, hope, adc_raw);
-        M5.Lcd.setCursor(224, 210);
-        if (success) {
-            M5.Lcd.setTextColor(GREEN, BLACK);
-        } else {
-            M5.Lcd.setTextColor(RED, BLACK);
-        }
+    float current = ammeter.getCurrent();
 
-        M5.Lcd.printf("SAVE");
-
-        delay(300);
-        M5.Lcd.setCursor(230, 210);
-        M5.Lcd.setTextColor(WHITE, BLACK);
-        M5.Lcd.printf("SAVE");
-
-        ammeter.setGain(now_gain);
-    }
-
-    float current              = ammeter.getCurrent();
     volt_raw_list[raw_now_ptr] = ammeter.adc_raw;
     raw_now_ptr                = (raw_now_ptr == 9) ? 0 : (raw_now_ptr + 1);
 
@@ -109,28 +93,35 @@ void loop(void) {
     }
 
     M5.Lcd.setTextColor(WHITE, BLACK);
-    M5.Lcd.setCursor(10, 10);
-    M5.Lcd.printf("Hope volt: %.2f mA             \r\n", page512_volt);
+    M5.Lcd.setCursor(2, 0);
+    M5.Lcd.printf("Hope volt:");
+    M5.Lcd.setCursor(5, 10);
+    M5.Lcd.printf("%.2f mAn", page512_volt);
 
-    M5.Lcd.setCursor(10, 40);
-    M5.Lcd.printf("Hope ADC: %d       \r\n", hope);
+    M5.Lcd.setCursor(2, 25);
+    M5.Lcd.printf("Hope ADC:");
+    M5.Lcd.setCursor(5, 35);
+    M5.Lcd.printf("%d", hope);
 
     M5.Lcd.setTextColor(WHITE, BLACK);
-    M5.Lcd.setCursor(10, 80);
-    M5.Lcd.printf("Cal volt: %.2f mA             \r\n", current);
+    M5.Lcd.setCursor(2, 50);
+    M5.Lcd.printf("Cal volt:");
+    M5.Lcd.setCursor(5, 60);
+    M5.Lcd.printf("%.2f mA", current);
 
     M5.Lcd.setTextColor(WHITE, BLACK);
-    M5.Lcd.setCursor(10, 110);
-    M5.Lcd.printf("Cal ADC: %.0f         \r\n",
-                  adc_raw * ammeter.calibration_factor);
+    M5.Lcd.setCursor(2, 75);
+    M5.Lcd.printf("Cal ADC:");
+    M5.Lcd.setCursor(5, 85);
+    M5.Lcd.printf("%.0f", adc_raw * ammeter.calibration_factor);
 
-    M5.Lcd.setCursor(10, 150);
-
+    M5.Lcd.setCursor(2, 100);
     if (abs(adc_raw) <= hope * 1.005 && abs(adc_raw) >= hope * 0.995) {
         M5.Lcd.setTextColor(GREEN, BLACK);
     } else {
         M5.Lcd.setTextColor(RED, BLACK);
     }
-
-    M5.Lcd.printf("RAW ADC: %d        \r\n", adc_raw);
+    M5.Lcd.printf("RAW ADC:");
+    M5.Lcd.setCursor(5, 110);
+    M5.Lcd.printf("%d", adc_raw);
 }
