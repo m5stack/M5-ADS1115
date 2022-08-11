@@ -21,7 +21,7 @@ will be overwritten and the measurement results will be inaccurate. 注意: EEPR
 
 #include "M5_ADS1115.h"
 
-Ammeter ammeter;
+ADS1115 Ammeter(AMETER, AMETER_ADDR, AMETER_EEPROM_ADDR);
 
 float page512_volt = 2000.0F;
 
@@ -31,16 +31,16 @@ int16_t adc_raw     = 0;
 
 int16_t hope = 0.0;
 
-ammeterGain_t now_gain = PAG_512;
+ADS1115Gain_t now_gain = PAG_512;
 
 void setup(void) {
     M5.begin();  // Init M5StickC.  初始化M5StickC
     Wire.begin();
 
-    ammeter.setMode(SINGLESHOT);
-    ammeter.setRate(RATE_8);
-    ammeter.setGain(PAG_512);
-    hope = page512_volt / ammeter.resolution;
+    Ammeter.setMode(SINGLESHOT);
+    Ammeter.setRate(RATE_8);
+    Ammeter.setGain(PAG_512);
+    hope = page512_volt / Ammeter.resolution;
     // | PAG      | Max Input Voltage(V) |
     // | PAG_6144 |        128           |
     // | PAG_4096 |        64            |
@@ -59,20 +59,20 @@ void setup(void) {
 void loop(void) {
     M5.update();  // Check the status of the key.  检测按键的状态
     if (M5.BtnA.wasPressed()) {
-        ammeter.setMode(SINGLESHOT);  // Set the mode.  设置模式
-        ammeter.setRate(RATE_8);      // Set the rate.  设置速率
-        ammeter.setGain(PAG_512);
+        Ammeter.setMode(SINGLESHOT);  // Set the mode.  设置模式
+        Ammeter.setRate(RATE_8);      // Set the rate.  设置速率
+        Ammeter.setGain(PAG_512);
         now_gain = PAG_512;
-        hope     = page512_volt / ammeter.resolution;
+        hope     = page512_volt / Ammeter.resolution;
 
         for (uint8_t i = 0; i < 10; i++) {
             volt_raw_list[i] = 0;
         }
     }
 
-    float current = ammeter.getCurrent();
+    float current = Ammeter.getValue();
 
-    volt_raw_list[raw_now_ptr] = ammeter.adc_raw;
+    volt_raw_list[raw_now_ptr] = Ammeter.adc_raw;
     raw_now_ptr                = (raw_now_ptr == 9) ? 0 : (raw_now_ptr + 1);
 
     int count = 0;
@@ -113,7 +113,7 @@ void loop(void) {
     M5.Lcd.setCursor(2, 75);
     M5.Lcd.printf("Cal ADC:");
     M5.Lcd.setCursor(5, 85);
-    M5.Lcd.printf("%.0f", adc_raw * ammeter.calibration_factor);
+    M5.Lcd.printf("%.0f", adc_raw * Ammeter.calibration_factor);
 
     M5.Lcd.setCursor(2, 100);
     if (abs(adc_raw) <= hope * 1.005 && abs(adc_raw) >= hope * 0.995) {
