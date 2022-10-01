@@ -77,27 +77,6 @@ void loop(void) {
         }
     }
 
-    if (M5.BtnC.wasPressed()) {
-        bool success =
-            voltmeter.saveCalibration2EEPROM(now_gain, hope, adc_raw);
-        M5.Lcd.setCursor(230, 210);
-
-        if (success) {
-            M5.Lcd.setTextColor(GREEN, BLACK);
-        } else {
-            M5.Lcd.setTextColor(RED, BLACK);
-        }
-
-        M5.Lcd.printf("SAVE");
-
-        delay(300);
-        M5.Lcd.setCursor(230, 210);
-        M5.Lcd.setTextColor(WHITE, BLACK);
-        M5.Lcd.printf("SAVE");
-
-        voltmeter.setGain(now_gain);
-    }
-
     voltmeter.getValue();
 
     volt_raw_list[raw_now_ptr] = voltmeter.adc_raw;

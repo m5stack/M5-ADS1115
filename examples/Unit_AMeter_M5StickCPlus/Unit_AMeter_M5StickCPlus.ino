@@ -75,26 +75,6 @@ void loop(void) {
         }
     }
 
-    //   if (M5.BtnB.wasPressed()) {
-    //     bool success = Ammeter.saveCalibration2EEPROM(now_gain, hope,
-    //     adc_raw); M5.Lcd.setCursor(118, 90);
-    //
-    //     if (success) {
-    //       M5.Lcd.setTextColor(GREEN, BLACK);
-    //     } else {
-    //       M5.Lcd.setTextColor(RED, BLACK);
-    //     }
-    //
-    //     M5.Lcd.printf("SAVE");
-    //
-    //     delay(300);
-    //     M5.Lcd.setCursor(118, 90);
-    //     M5.Lcd.setTextColor(WHITE, BLACK);
-    //     M5.Lcd.printf("SAVE");
-    //
-    //     Ammeter.setGain(now_gain);
-    //  }
-
     float current = Ammeter.getValue();
 
     volt_raw_list[raw_now_ptr] = Ammeter.adc_raw;
