@@ -18,7 +18,10 @@ will be overwritten and the measurement results will be inaccurate. 注意: EEPR
 */
 
 #include "M5Core2.h"
+#include <Wire.h>
 #include "M5_ADS1115.h"
+#include "title.h"
+#include "shut.h"
 
 ADS1115 voltmeter;
 
@@ -29,54 +32,81 @@ int16_t volt_raw_list[10];
 uint8_t raw_now_ptr = 0;
 int16_t adc_raw     = 0;
 
-int16_t hope = 0.0;
-
+int16_t hope           = 0.0;
 ADS1115Gain_t now_gain = PAG_512;
 
-void setup() {
+int x     = 0;
+int xt    = 0;
+int value = 0;
+
+int bright[4] = {30, 60, 100, 200};
+int b         = 1;
+bool d        = 0;
+
+void setup(void) {
     M5.begin();
+    M5.Lcd.setSwapBytes(true);
+    M5.Lcd.setBrightness(bright[b]);
     Wire.begin();
 
-    voltmeter.setMode(SINGLESHOT);  // | PAG      | Max Input Voltage(V) |
-    voltmeter.setRate(RATE_8);      // | PAG_6144 |        128           |
-    voltmeter.setGain(PAG_512);     // | PAG_4096 |        64            |
-    hope = page512_volt /
-           voltmeter.resolution;  // | PAG_2048 |        32            |
-                                  // | PAG_512  |        16            |
-                                  // | PAG_256  |        8             |
-    M5.Lcd.setTextFont(4);  // Set font to 4 point font.  设置字体为4号字体
+    voltmeter.setMode(SINGLESHOT);
+    voltmeter.setRate(RATE_128);
+    voltmeter.setGain(PAG_512);
+    hope = page512_volt / voltmeter.resolution;
 
-    M5.Lcd.setCursor(
-        52,
-        210);  // Set the cursor at (52,210).  将光标设置在(52, 210)
-    M5.Lcd.printf("5V            60V           SAVE");
+    // | PAG      | Max Input Voltage(V) |
+    // | PAG_6144 |        128           |
+    // | PAG_4096 |        64            |
+    // | PAG_2048 |        32            |
+    // | PAG_512  |        16            |
+    // | PAG_256  |        8             |
+
+    M5.Lcd.fillScreen(BLACK);
+
+    M5.Lcd.pushImage(4, 20, 220, 48, title);
+    M5.Lcd.pushImage(152, 216, 16, 16, shut);
+
+    M5.Lcd.setTextColor(RED, BLACK);
+    M5.Lcd.drawString("Warning!", 234, 40, 2);
+    M5.Lcd.setTextColor(WHITE, BLACK);
+    M5.Lcd.drawString("This device can", 214, 60, 1);
+    M5.Lcd.drawString("measure voltage", 214, 72, 1);
+    M5.Lcd.drawString("up to 32 Volts", 214, 84, 1);
+    M5.Lcd.drawString("BRIGHTNESS: " + String(b), 16, 4, 1);
+    M5.Lcd.drawString("BATERRY: " + String(M5.Power.getBatteryLevel()) + "%",
+                      226, 4, 1);
+
+    M5.Lcd.setTextFont(2);
+
+    M5.Lcd.setCursor(36, 216);
+    M5.Lcd.printf("D00/000");
+
+    M5.Lcd.setCursor(220, 216);
+    M5.Lcd.printf("Brightness");
+
+    M5.Lcd.drawLine(16, 180, 304, 180, WHITE);
+    M5.Lcd.drawLine(16, 16, 304, 16, WHITE);
+
+    M5.Lcd.setTextColor(WHITE, RED);
+    M5.Lcd.drawString("     mVolts     ", 210, 100, 2);
+    M5.Lcd.setTextColor(WHITE, BLACK);
+
+    int start = 16;
+    M5.Lcd.setTextFont(2);
+    for (int i = 0; i < 17; i++) {
+        M5.Lcd.drawLine((i * 18) + start, 170, (i * 18) + start, 184, WHITE);
+        if (i < 16)
+            M5.Lcd.drawLine((i * 18) + start + 8, 178, (i * 18) + start + 8,
+                            184, WHITE);
+        if (i % 4 == 0) {
+            M5.Lcd.setCursor((i * 18) + start - 4, 186);
+            M5.Lcd.print(i * 2);
+        }
+    }
 }
 
 void loop(void) {
-    M5.update();  // Check the status of the key.  检测按键的状态
-    if (M5.BtnA.wasPressed()) {
-        voltmeter.setMode(SINGLESHOT);  // Set the mode.  设置模式
-        voltmeter.setRate(RATE_8);      // Set the rate.  设置速率
-        voltmeter.setGain(PAG_512);
-        now_gain = PAG_512;
-        hope     = page512_volt / voltmeter.resolution;
-
-        for (uint8_t i = 0; i < 10; i++) {
-            volt_raw_list[i] = 0;
-        }
-    }
-
-    if (M5.BtnB.wasPressed()) {
-        voltmeter.setMode(SINGLESHOT);
-        voltmeter.setRate(RATE_8);
-        voltmeter.setGain(PAG_4096);
-        now_gain = PAG_4096;
-        hope     = page4096_volt / voltmeter.resolution;
-
-        for (uint8_t i = 0; i < 10; i++) {
-            volt_raw_list[i] = 0;
-        }
-    }
+    M5.update();
 
     voltmeter.getValue();
 
@@ -101,35 +131,48 @@ void loop(void) {
     }
 
     M5.Lcd.setTextColor(WHITE, BLACK);
-    if (now_gain == PAG_512) {
-        M5.Lcd.setCursor(10, 10);
-        M5.Lcd.printf("Hope volt: %.2f mv             \r\n", page512_volt);
-    } else {
-        M5.Lcd.setCursor(10, 10);
-        M5.Lcd.printf("Hope volt: %.2f mv              \r\n", page4096_volt);
-    }
 
-    M5.Lcd.setCursor(10, 40);
-    M5.Lcd.printf("Hope ADC: %d     \r\n", hope);
-
-    M5.Lcd.setTextColor(WHITE, BLACK);
     M5.Lcd.setCursor(10, 80);
-    M5.Lcd.printf(
-        "Cal volt: %.2f mv           \r\n",
-        adc_raw * voltmeter.resolution * voltmeter.calibration_factor);
+    M5.Lcd.setTextFont(7);
+
+    value = adc_raw * voltmeter.resolution * voltmeter.calibration_factor;
+
+    if (d == 0)
+        M5.Lcd.printf("%.2f   \r\n", (
+
+                                         adc_raw * voltmeter.resolution *
+                                         voltmeter.calibration_factor) /
+                                         1000);
+    if (d == 1)
+        M5.Lcd.printf("%.3f  \r\n", (adc_raw * voltmeter.resolution *
+                                     voltmeter.calibration_factor) /
+                                        1000);
 
     M5.Lcd.setTextColor(WHITE, BLACK);
-    M5.Lcd.setCursor(10, 110);
-    M5.Lcd.printf("Cal ADC: %.0f      \r\n",
-                  adc_raw * voltmeter.calibration_factor);
+    M5.Lcd.drawString(
+        String(adc_raw * voltmeter.resolution * voltmeter.calibration_factor) +
+            "          ",
+        210, 120, 2);
+    M5.Lcd.setTextColor(WHITE, BLUE);
+    M5.Lcd.drawString("ADC:" + String(adc_raw) + " ", 210, 140, 1);
+    M5.Lcd.setTextColor(WHITE, BLACK);
 
-    M5.Lcd.setCursor(10, 150);
+    if (value < 0) value = value * -1;
 
-    if (adc_raw <= hope * 1.001 && adc_raw >= hope * 0.999) {
-        M5.Lcd.setTextColor(GREEN, BLACK);
-    } else {
-        M5.Lcd.setTextColor(RED, BLACK);
+    x = map(value, 0, 32000, 16, 304);
+
+    if (x != xt) {
+        M5.Lcd.fillTriangle(xt - 5, 154, xt + 5, 154, xt, 166, BLACK);
+        M5.Lcd.fillTriangle(x - 5, 154, x + 5, 154, x, 166, RED);
+        xt = x;
     }
 
-    M5.Lcd.printf("RAW ADC: %d        \r\n", adc_raw);
+    if (M5.BtnC.wasPressed()) {
+        b++;
+        if (b > 3) b = 0;
+        M5.Lcd.setBrightness(bright[b]);
+        M5.Lcd.drawString("BRIGHTNESS: " + String(b), 16, 4, 1);
+    }
+
+    if (M5.BtnA.wasPressed()) d = !d;
 }

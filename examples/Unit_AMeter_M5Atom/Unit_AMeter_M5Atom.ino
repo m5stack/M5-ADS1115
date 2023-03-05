@@ -9,6 +9,8 @@
 * Product:  Ameter_ADS1115.  电流计
 * Date: 2022/7/11
 *******************************************************************************
+  This example can be used to calibrate a device.
+  此示例可用来校准设备.
   Please connect to Port ,Measure current and display.
   请连接端口,测量电流并显示到串口上
   Pay attention: EEPROM (0x51) has built-in calibration parameters when leaving

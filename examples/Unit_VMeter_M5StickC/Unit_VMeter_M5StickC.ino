@@ -18,7 +18,7 @@
   请不要写入EEPROM，否则校准数据会被覆盖，测量结果会不准确。
 */
 
-#include "M5StickCPlus.h"
+#include "M5StickC.h"
 #include "M5_ADS1115.h"
 
 ADS1115 voltmeter;

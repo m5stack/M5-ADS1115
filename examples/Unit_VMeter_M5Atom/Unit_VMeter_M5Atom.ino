@@ -7,7 +7,7 @@
 * 获取更多资料请访问：https://docs.m5stack.com/zh_CN/unit/vmeter
 *
 * Product:  Vmeter_ADS1115.
-* Date: 22022/7/11
+* Date: 2022/7/11
 *******************************************************************************
   Please connect to Port,Measure voltage and display in the serial.
   请连接端口,测量电压并显示到串口
@@ -18,7 +18,10 @@
 */
 
 #include "M5Atom.h"
+#include <Wire.h>
 #include "M5_ADS1115.h"
+#include "title.h"
+#include "shut.h"
 
 ADS1115 voltmeter;
 
@@ -34,47 +37,26 @@ uint8_t voltage_change = 0;
 
 ADS1115Gain_t now_gain = PAG_512;
 
+int x     = 0;
+int xt    = 0;
+int value = 0;
+
+int bright[4] = {30, 60, 100, 200};
+int b         = 1;
+bool d        = 0;
+
 void setup() {
     M5.begin();
     Wire.begin(26, 32);
 
-    voltmeter.setMode(SINGLESHOT);  // | PAG      | Max Input Voltage(V) |
-    voltmeter.setRate(RATE_8);      // | PAG_6144 |        128           |
-    voltmeter.setGain(PAG_512);     // | PAG_4096 |        64            |
-    hope = page512_volt /
-           voltmeter.resolution;  // | PAG_2048 |        32            |
-                                  // | PAG_512  |        16            |
-                                  // | PAG_256  |        8             |
+    voltmeter.setMode(SINGLESHOT);
+    voltmeter.setRate(RATE_128);
+    voltmeter.setGain(PAG_512);
 }
 
 void loop(void) {
-    M5.update();  // Check the status of the key.  检测按键的状态
-    if (M5.Btn.wasPressed()) {
-        if (voltage_change == 0) {
-            voltmeter.setMode(SINGLESHOT);  // Set the mode.  设置模式
-            voltmeter.setRate(RATE_8);      // Set the rate.  设置速率
-            voltmeter.setGain(PAG_512);
-            now_gain = PAG_512;
-            hope     = page512_volt / voltmeter.resolution;
+    M5.update();
 
-            for (uint8_t i = 0; i < 10; i++) {
-                volt_raw_list[i] = 0;
-            }
-            voltage_change = 1;
-        } else if (voltage_change == 1) {
-            voltmeter.setMode(SINGLESHOT);
-            voltmeter.setRate(RATE_8);
-            voltmeter.setGain(PAG_4096);
-            now_gain = PAG_4096;
-            hope     = page4096_volt / voltmeter.resolution;
-
-            for (uint8_t i = 0; i < 10; i++) {
-                volt_raw_list[i] = 0;
-            }
-
-            voltage_change = 0;
-        }
-    }
     voltmeter.getValue();
 
     volt_raw_list[raw_now_ptr] = voltmeter.adc_raw;
@@ -97,24 +79,26 @@ void loop(void) {
         adc_raw = total / count;
     }
 
-    if (now_gain == PAG_512) {
-        Serial.printf("Hope volt:");
-        Serial.printf("%.2f mv", page512_volt);
-    } else {
-        Serial.printf("Hope volt:");
-        Serial.printf("%.2f mv", page4096_volt);
-    }
+    value = adc_raw * voltmeter.resolution * voltmeter.calibration_factor;
 
-    Serial.printf("Hope ADC:");
-    Serial.printf("%d", hope);
+    if (d == 0)
+        Serial.printf("%.2f   \r\n", (
 
-    Serial.printf("Cal volt:");
-    Serial.printf("%.2f mv", adc_raw * voltmeter.resolution *
-                                 voltmeter.calibration_factor);
+                                         adc_raw * voltmeter.resolution *
+                                         voltmeter.calibration_factor) /
+                                         1000);
+    if (d == 1)
+        Serial.printf("%.3f  \r\n", (adc_raw * voltmeter.resolution *
+                                     voltmeter.calibration_factor) /
+                                        1000);
 
-    Serial.printf("Cal ADC:");
-    Serial.printf("%.0f", adc_raw * voltmeter.calibration_factor);
+    Serial.print(
+        String(adc_raw * voltmeter.resolution * voltmeter.calibration_factor));
+    Serial.printf("ADC:%s", String(adc_raw));
 
-    Serial.printf("RAW ADC:");
-    Serial.printf("%d\n", adc_raw);
+    if (value < 0) value = value * -1;
+
+    x = map(value, 0, 32000, 16, 304);
+
+    if (M5.Btn.wasPressed()) d = !d;
 }
