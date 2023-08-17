@@ -24,7 +24,7 @@
 
 ADS1115 Ammeter(AMETER, AMETER_ADDR, AMETER_EEPROM_ADDR);
 
-float page512_volt = 2000.0F;
+float pgae512_volt = 2000.0F;
 
 int16_t volt_raw_list[10];
 uint8_t raw_now_ptr = 0;
@@ -32,7 +32,7 @@ int16_t adc_raw     = 0;
 
 int16_t hope = 0.0;
 
-ADS1115Gain_t now_gain = PAG_512;
+ADS1115Gain_t now_gain = PGA_512;
 
 void setup(void) {
     M5.begin();        // Init M5Stack.  初始化M5Stack
@@ -42,14 +42,14 @@ void setup(void) {
 
     Ammeter.setMode(SINGLESHOT);
     Ammeter.setRate(RATE_8);
-    Ammeter.setGain(PAG_512);
-    hope = page512_volt / Ammeter.resolution;
-    // | PAG      | Max Input Voltage(V) |
-    // | PAG_6144 |        128           |
-    // | PAG_4096 |        64            |
-    // | PAG_2048 |        32            |
-    // | PAG_512  |        16            |
-    // | PAG_256  |        8             |
+    Ammeter.setGain(PGA_512);
+    hope = pgae512_volt / Ammeter.resolution;
+    // | PGA      | Max Input Voltage(V) |
+    // | PGA_6144 |        128           |
+    // | PGA_4096 |        64            |
+    // | PGA_2048 |        32            |
+    // | PGA_512  |        16            |
+    // | PGA_256  |        8             |
     M5.Lcd.setTextFont(4);  // Set font to 4 point font.  设置字体为4号字体
     M5.Lcd.setCursor(
         52, 210);  // Set the cursor at (52,210).  将光标设置在(52, 210)
@@ -61,9 +61,9 @@ void loop(void) {
     if (M5.BtnA.wasPressed()) {
         Ammeter.setMode(SINGLESHOT);  // Set the mode.  设置模式
         Ammeter.setRate(RATE_8);      // Set the rate.  设置速率
-        Ammeter.setGain(PAG_512);
-        now_gain = PAG_512;
-        hope     = page512_volt / Ammeter.resolution;
+        Ammeter.setGain(PGA_512);
+        now_gain = PGA_512;
+        hope     = pgae512_volt / Ammeter.resolution;
 
         for (uint8_t i = 0; i < 10; i++) {
             volt_raw_list[i] = 0;
@@ -93,7 +93,7 @@ void loop(void) {
 
     M5.Lcd.setTextColor(WHITE, BLACK);
     M5.Lcd.setCursor(10, 10);
-    M5.Lcd.printf("Hope volt: %.2f mA             \r\n", page512_volt);
+    M5.Lcd.printf("Hope volt: %.2f mA             \r\n", pgae512_volt);
 
     M5.Lcd.setCursor(10, 40);
     M5.Lcd.printf("Hope ADC: %d       \r\n", hope);

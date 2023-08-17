@@ -28,7 +28,7 @@ void setup() {
     Wire.begin();
     voltmeter.setMode(SINGLESHOT);
     voltmeter.setRate(RATE_8);   // Lowest most stable read time.
-    voltmeter.setGain(PAG_256);  // Most sensitive detection.
+    voltmeter.setGain(PGA_256);  // Most sensitive detection.
     M5.Lcd.fillScreen(BLACK);
     M5.Lcd.setTextFont(2);
     M5.Lcd.setTextSize(3);

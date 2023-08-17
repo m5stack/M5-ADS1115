@@ -23,9 +23,9 @@ Updated by Bodmer for variable meter size
 
 Ammeter ammeter;
 
-float page512_volt = 2000.0F;
+float pgae512_volt = 2000.0F;
 
-ammeterGain_t now_gain = PAG_512;
+ammeterGain_t now_gain = PGA_512;
 
 #define TFT_GREY 0x5AEB
 
@@ -45,13 +45,13 @@ void setup(void) {
 
     ammeter.setMode(SINGLESHOT);
     ammeter.setRate(RATE_8);
-    ammeter.setGain(PAG_512);
-    // | PAG      | Max Input Voltage(V) |
-    // | PAG_6144 |        128           |
-    // | PAG_4096 |        64            |
-    // | PAG_2048 |        32            |
-    // | PAG_512  |        16            |
-    // | PAG_256  |        8             |
+    ammeter.setGain(PGA_512);
+    // | PGA      | Max Input Voltage(V) |
+    // | PGA_6144 |        128           |
+    // | PGA_4096 |        64            |
+    // | PGA_2048 |        32            |
+    // | PGA_512  |        16            |
+    // | PGA_256  |        8             |
     M5.Lcd.fillScreen(TFT_BLACK);
 
     analogMeter();  // Draw analogue meter

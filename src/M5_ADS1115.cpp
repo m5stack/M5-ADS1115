@@ -64,17 +64,17 @@ float ADS1115::getResolution(bool device, ADS1115Gain_t gain) {
     float tem = (device) ? VOLTMETER_PRESSURE_COEFFICIENT
                          : AMMETER_PRESSURE_COEFFICIENT;
     switch (gain) {
-        case PAG_6144:
+        case PGA_6144:
             return ADS1115_MV_6144 / tem;
-        case PAG_4096:
+        case PGA_4096:
             return ADS1115_MV_4096 / tem;
-        case PAG_2048:
+        case PGA_2048:
             return ADS1115_MV_2048 / tem;
-        case PAG_1024:
+        case PGA_1024:
             return ADS1115_MV_1024 / tem;
-        case PAG_512:
+        case PGA_512:
             return ADS1115_MV_512 / tem;
-        case PAG_256:
+        case PGA_256:
             return ADS1115_MV_256 / tem;
         default:
             return ADS1115_MV_256 / tem;
@@ -85,18 +85,18 @@ float ADS1115::getResolution(bool device, ADS1115Gain_t gain) {
     @return EEPROM address.. */
 uint8_t ADS1115::getPGAEEEPROMAddr(ADS1115Gain_t gain) {
     switch (gain) {
-        case PAG_6144:
-            return ADS1115_PAG_6144_CAL_ADDR;
-        case PAG_4096:
-            return ADS1115_PAG_4096_CAL_ADDR;
-        case PAG_2048:
-            return ADS1115_PAG_2048_CAL_ADDR;
-        case PAG_1024:
-            return ADS1115_PAG_1024_CAL_ADDR;
-        case PAG_512:
-            return ADS1115_PAG_512_CAL_ADDR;
-        case PAG_256:
-            return ADS1115_PAG_256_CAL_ADDR;
+        case PGA_6144:
+            return ADS1115_PGA_6144_CAL_ADDR;
+        case PGA_4096:
+            return ADS1115_PGA_4096_CAL_ADDR;
+        case PGA_2048:
+            return ADS1115_PGA_2048_CAL_ADDR;
+        case PGA_1024:
+            return ADS1115_PGA_1024_CAL_ADDR;
+        case PGA_512:
+            return ADS1115_PGA_512_CAL_ADDR;
+        case PGA_256:
+            return ADS1115_PGA_256_CAL_ADDR;
         default:
             return 0x00;
     };
@@ -129,7 +129,7 @@ ADS1115::ADS1115(bool device, uint8_t ads1115_addr, uint8_t eeprom_addr) {
     _device            = device;
     _ads1115_addr      = ads1115_addr;
     _eeprom_addr       = eeprom_addr;
-    _gain              = PAG_2048;
+    _gain              = PGA_2048;
     _mode              = SINGLESHOT;
     _rate              = RATE_128;
     calibration_factor = 1;

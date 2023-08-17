@@ -25,8 +25,8 @@
 
 ADS1115 voltmeter;
 
-float page512_volt  = 5000.0F;
-float page4096_volt = 60000.0F;
+float pgae512_volt  = 5000.0F;
+float pgae4096_volt = 60000.0F;
 
 int16_t volt_raw_list[10];
 uint8_t raw_now_ptr = 0;
@@ -35,7 +35,7 @@ int16_t adc_raw     = 0;
 int16_t hope           = 0.0;
 uint8_t voltage_change = 0;
 
-ADS1115Gain_t now_gain = PAG_512;
+ADS1115Gain_t now_gain = PGA_512;
 
 int x     = 0;
 int xt    = 0;
@@ -51,7 +51,7 @@ void setup() {
 
     voltmeter.setMode(SINGLESHOT);
     voltmeter.setRate(RATE_128);
-    voltmeter.setGain(PAG_512);
+    voltmeter.setGain(PGA_512);
 }
 
 void loop(void) {

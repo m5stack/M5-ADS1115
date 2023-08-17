@@ -50,17 +50,17 @@ bool Ammeter::i2cWriteU16(uint8_t addr, uint8_t reg_addr, uint16_t value) {
 
 float Ammeter::getResolution(ammeterGain_t gain) {
     switch (gain) {
-        case PAG_6144:
+        case PGA_6144:
             return ADS1115_MV_6144 / AMMETER_PRESSURE_COEFFICIENT;
-        case PAG_4096:
+        case PGA_4096:
             return ADS1115_MV_4096 / AMMETER_PRESSURE_COEFFICIENT;
-        case PAG_2048:
+        case PGA_2048:
             return ADS1115_MV_2048 / AMMETER_PRESSURE_COEFFICIENT;
-        case PAG_1024:
+        case PGA_1024:
             return ADS1115_MV_1024 / AMMETER_PRESSURE_COEFFICIENT;
-        case PAG_512:
+        case PGA_512:
             return ADS1115_MV_512 / AMMETER_PRESSURE_COEFFICIENT;
-        case PAG_256:
+        case PGA_256:
             return ADS1115_MV_256 / AMMETER_PRESSURE_COEFFICIENT;
         default:
             return ADS1115_MV_256 / AMMETER_PRESSURE_COEFFICIENT;
@@ -69,18 +69,18 @@ float Ammeter::getResolution(ammeterGain_t gain) {
 
 uint8_t Ammeter::getPGAEEEPROMAddr(ammeterGain_t gain) {
     switch (gain) {
-        case PAG_6144:
-            return AMMETER_PAG_6144_CAL_ADDR;
-        case PAG_4096:
-            return AMMETER_PAG_4096_CAL_ADDR;
-        case PAG_2048:
-            return AMMETER_PAG_2048_CAL_ADDR;
-        case PAG_1024:
-            return AMMETER_PAG_1024_CAL_ADDR;
-        case PAG_512:
-            return AMMETER_PAG_512_CAL_ADDR;
-        case PAG_256:
-            return AMMETER_PAG_256_CAL_ADDR;
+        case PGA_6144:
+            return AMMETER_PGA_6144_CAL_ADDR;
+        case PGA_4096:
+            return AMMETER_PGA_4096_CAL_ADDR;
+        case PGA_2048:
+            return AMMETER_PGA_2048_CAL_ADDR;
+        case PGA_1024:
+            return AMMETER_PGA_1024_CAL_ADDR;
+        case PGA_512:
+            return AMMETER_PGA_512_CAL_ADDR;
+        case PGA_256:
+            return AMMETER_PGA_256_CAL_ADDR;
         default:
             return 0x00;
     };
@@ -112,7 +112,7 @@ uint16_t Ammeter::getCoverTime(ammeterRate_t rate) {
 Ammeter::Ammeter(uint8_t ads1115_addr, uint8_t eeprom_addr) {
     _ads1115_addr      = ads1115_addr;
     _eeprom_addr       = eeprom_addr;
-    _gain              = PAG_2048;
+    _gain              = PGA_2048;
     _mode              = SINGLESHOT;
     _rate              = RATE_128;
     calibration_factor = 1;

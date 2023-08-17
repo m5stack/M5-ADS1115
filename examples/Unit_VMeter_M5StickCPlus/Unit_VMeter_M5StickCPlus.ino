@@ -22,8 +22,8 @@ will be overwritten and the measurement results will be inaccurate. 注意: EEPR
 
 ADS1115 voltmeter;
 
-float page512_volt  = 5000.0F;
-float page4096_volt = 60000.0F;
+float pgae512_volt  = 5000.0F;
+float pgae4096_volt = 60000.0F;
 
 int16_t volt_raw_list[10];
 uint8_t raw_now_ptr = 0;
@@ -32,7 +32,7 @@ int16_t adc_raw     = 0;
 int16_t hope           = 0.0;
 uint8_t voltage_change = 0;
 
-ADS1115Gain_t now_gain = PAG_512;
+ADS1115Gain_t now_gain = PGA_512;
 
 #include "M5StickCPlus.h"
 #include "M5_ADS1115.h"
@@ -44,7 +44,7 @@ void setup() {
     Wire.begin();
     voltmeter.setMode(SINGLESHOT);
     voltmeter.setRate(RATE_8);   // Lowest most stable read time.
-    voltmeter.setGain(PAG_256);  // Most sensitive detection.
+    voltmeter.setGain(PGA_256);  // Most sensitive detection.
     M5.Lcd.fillScreen(BLACK);
     M5.Lcd.setTextFont(2);
     M5.Lcd.setTextSize(3);

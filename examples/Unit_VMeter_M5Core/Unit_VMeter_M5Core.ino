@@ -24,15 +24,15 @@ will be overwritten and the measurement results will be inaccurate. 注意: EEPR
 
 ADS1115 voltmeter;
 
-float page512_volt  = 5000.0F;
-float page4096_volt = 60000.0F;
+float pgae512_volt  = 5000.0F;
+float pgae4096_volt = 60000.0F;
 
 int16_t volt_raw_list[10];
 uint8_t raw_now_ptr = 0;
 int16_t adc_raw     = 0;
 
 int16_t hope           = 0.0;
-ADS1115Gain_t now_gain = PAG_512;
+ADS1115Gain_t now_gain = PGA_512;
 
 int x     = 0;
 int xt    = 0;
@@ -51,15 +51,15 @@ void setup(void) {
 
     voltmeter.setMode(SINGLESHOT);
     voltmeter.setRate(RATE_128);
-    voltmeter.setGain(PAG_512);
-    hope = page512_volt / voltmeter.resolution;
+    voltmeter.setGain(PGA_512);
+    hope = pgae512_volt / voltmeter.resolution;
 
-    // | PAG      | Max Input Voltage(V) |
-    // | PAG_6144 |        128           |
-    // | PAG_4096 |        64            |
-    // | PAG_2048 |        32            |
-    // | PAG_512  |        16            |
-    // | PAG_256  |        8             |
+    // | PGA      | Max Input Voltage(V) |
+    // | PGA_6144 |        128           |
+    // | PGA_4096 |        64            |
+    // | PGA_2048 |        32            |
+    // | PGA_512  |        16            |
+    // | PGA_256  |        8             |
 
     M5.Lcd.fillScreen(BLACK);
 
