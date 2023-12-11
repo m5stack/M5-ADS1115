@@ -30,7 +30,7 @@ int16_t adc_raw     = 0;
 
 int16_t hope = 0.0;
 
-ADS1115Gain_t now_gain = PGA_512;
+ADS1115Gain_t now_gain = PAG_512;
 
 void setup(void) {
     M5.begin();  // Init M5Core2.  初始化M5Core2
@@ -38,9 +38,9 @@ void setup(void) {
 
     Ammeter.setMode(SINGLESHOT); /* | PGA      | Max Input Voltage(V) | */
     Ammeter.setRate(RATE_8);     /* | PGA_6144 |        128           | */
-    Ammeter.setGain(PGA_512);    /* | PGA_4096 |        64            | */
+    Ammeter.setGain(PAG_512);    /* | PGA_4096 |        64            | */
     hope = pgae512_volt / Ammeter.resolution; /* | PGA_2048 |        32 | */
-    /* | PGA_512  |        16            | */
+    /* | PAG_512  |        16            | */
     /* | PGA_256  |        8             | */
     M5.Lcd.setTextFont(4);  // Set font to 4 point font.  设置字体为4号字体
     M5.Lcd.setCursor(
@@ -53,8 +53,8 @@ void loop(void) {
     if (M5.BtnA.wasPressed()) {
         Ammeter.setMode(SINGLESHOT);  // Set the mode.  设置模式
         Ammeter.setRate(RATE_8);      // Set the rate.  设置速率
-        Ammeter.setGain(PGA_512);
-        now_gain = PGA_512;
+        Ammeter.setGain(PAG_512);
+        now_gain = PAG_512;
         hope     = pgae512_volt / Ammeter.resolution;
 
         for (uint8_t i = 0; i < 10; i++) {
