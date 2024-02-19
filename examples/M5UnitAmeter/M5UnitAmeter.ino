@@ -1,12 +1,12 @@
 /**
- * @file Unit_AMeter_M5Atom.ino
+ * @file M5UnitAmeter.ino
  * @author SeanKwok (shaoxiang@m5stack.com)
  * @brief M5UnitAmeter Example
  * @version 0.1
  * @date 2024-01-30
  *
  *
- * @Hardwares: M5Atom + Unit Ameter
+ * @Hardwares: M5Core + Unit Ameter
  * @Platform Version: Arduino M5Stack Board Manager v2.1.0
  * @Dependent Library:
  * M5_ADS1115: https://github.com/m5stack/M5-ADS1115
@@ -24,7 +24,7 @@ float resolution         = 0.0;
 float calibration_factor = 0.0;
 
 void setup() {
-    while (!Ameter.begin(&Wire, M5_UNIT_AMETER_I2C_ADDR, 26, 32, 400000U)) {
+    while (!Ameter.begin(&Wire, M5_UNIT_AMETER_I2C_ADDR, 21, 22, 400000U)) {
         Serial.println("Unit Ameter Init Fail");
         delay(1000);
     }

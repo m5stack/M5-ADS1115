@@ -1,21 +1,17 @@
 /**
- * @file Unit_VMeter_M5StickCPlus.ino
+ * @file M5UnitVmeter.ino
  * @author SeanKwok (shaoxiang@m5stack.com)
  * @brief M5UnitVmeter Example
  * @version 0.1
  * @date 2024-01-30
  *
  *
- * @Hardwares: M5StickCPlus + Unit Vmeter
+ * @Hardwares: M5Core + Unit Vmeter
  * @Platform Version: Arduino M5Stack Board Manager v2.1.0
  * @Dependent Library:
  * M5_ADS1115: https://github.com/m5stack/M5-ADS1115
- * M5GFX: https://github.com/m5stack/M5GFX
- * M5Unified: https://github.com/m5stack/M5Unified
  */
 
-#include "M5Unified.h"
-#include "M5GFX.h"
 #include "M5_ADS1115.h"
 
 #define M5_UNIT_VMETER_I2C_ADDR             0x49
@@ -28,8 +24,7 @@ float resolution         = 0.0;
 float calibration_factor = 0.0;
 
 void setup() {
-    M5.begin();
-    while (!Vmeter.begin(&Wire, M5_UNIT_VMETER_I2C_ADDR, 32, 33, 400000U)) {
+    while (!Vmeter.begin(&Wire, M5_UNIT_VMETER_I2C_ADDR, 21, 22, 400000U)) {
         Serial.println("Unit Vmeter Init Fail");
         delay(1000);
     }
@@ -54,11 +49,4 @@ void loop() {
     Serial.printf("Cal ADC:%.0f\n", adc_raw * calibration_factor);
     Serial.printf("Cal Voltage:%.2f mV\n", voltage);
     Serial.printf("Raw ADC:%d\n\n", adc_raw);
-
-    M5.Display.clear();
-    M5.Display.setCursor(0, 0);
-    M5.Display.printf("Cal ADC:%.0f\n", adc_raw * calibration_factor);
-    M5.Display.printf("Cal Voltage:%.2f mV\n", voltage);
-    M5.Display.printf("Raw ADC:%d\n\n", adc_raw);
-    delay(1000);
 }

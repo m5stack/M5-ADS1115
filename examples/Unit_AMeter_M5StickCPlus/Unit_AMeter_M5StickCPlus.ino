@@ -1,48 +1,42 @@
-/*
-*******************************************************************************
-* Copyright (c) 2021 by M5Stack
-*                  Equipped with M5StickCPlus sample source code
-*                          配套  M5StickCPlus 示例源代码
-* Visit for more information：https://docs.m5stack.com/en/unit/ameter
-* 获取更多资料请访问：https://docs.m5stack.com/zh_CN/unit/ameter
-*
-* Product:  Ameter_ADS1115.  电流计
-* Date: 2021/8/19
-*******************************************************************************
-  This example can be used to calibrate a device.
-  此示例可用来校准设备.
-  Please connect to Port A,Measure current and display,
-  请连接端口A,测量电流并显示到屏幕上
-  Pay attention: EEPROM (0x51) has built-in calibration parameters when leaving
-  the factory. Please do not write to the EEPROM, otherwise the calibration data
-  will be overwritten and the measurement results will be inaccurate.
-  注意:EEPROM(0x51)在出厂时具有内置的校准参数。请不要写入EEPROM，否则校准数据会被覆盖，测量结果会不准确。
-*/
+/**
+ * @file Unit_AMeter_M5StickCPlus.ino
+ * @author SeanKwok (shaoxiang@m5stack.com)
+ * @brief M5UnitAmeter Example
+ * @version 0.1
+ * @date 2024-01-30
+ *
+ *
+ * @Hardwares: M5StickCPlus + Unit Ameter
+ * @Platform Version: Arduino M5Stack Board Manager v2.1.0
+ * @Dependent Library:
+ * M5_ADS1115: https://github.com/m5stack/M5-ADS1115
+ * M5GFX: https://github.com/m5stack/M5GFX
+ * M5Unified: https://github.com/m5stack/M5Unified
+ */
 
-#include <M5StickCPlus.h>
-#include <Wire.h>
+#include "M5Unified.h"
+#include "M5GFX.h"
 #include "M5_ADS1115.h"
 
-ADS1115 Ammeter(AMETER, AMETER_ADDR, AMETER_EEPROM_ADDR);
+#define M5_UNIT_AMETER_I2C_ADDR             0x48
+#define M5_UNIT_AMETER_EEPROM_I2C_ADDR      0x51
+#define M5_UNIT_AMETER_PRESSURE_COEFFICIENT 0.05
 
-float pgae512_volt = 2000.0F;
+ADS1115 Ameter;
 
-int16_t volt_raw_list[10];
-uint8_t raw_now_ptr = 0;
-int16_t adc_raw     = 0;
+float resolution         = 0.0;
+float calibration_factor = 0.0;
 
-int16_t hope = 0.0;
-
-ADS1115Gain_t now_gain = PGA_512;
-
-void setup(void) {
+void setup() {
     M5.begin();
-    Wire.begin();
-
-    Ammeter.setMode(SINGLESHOT);
-    Ammeter.setRate(RATE_8);
-    Ammeter.setGain(PGA_512);
-    hope = pgae512_volt / Ammeter.resolution;
+    while (!Ameter.begin(&Wire, M5_UNIT_AMETER_I2C_ADDR, 32, 33, 400000U)) {
+        Serial.println("Unit Ameter Init Fail");
+        delay(1000);
+    }
+    Ameter.setEEPROMAddr(M5_UNIT_AMETER_EEPROM_I2C_ADDR);
+    Ameter.setMode(ADS1115_MODE_SINGLESHOT);
+    Ameter.setRate(ADS1115_RATE_8);
+    Ameter.setGain(ADS1115_PGA_512);
     // | PGA      | Max Input Voltage(V) |
     // | PGA_6144 |        128           |
     // | PGA_4096 |        64            |
@@ -50,88 +44,21 @@ void setup(void) {
     // | PGA_512  |        16            |
     // | PGA_256  |        8             |
 
-    M5.Lcd.fillScreen(BLACK);
-    M5.Lcd.setTextFont(2);
-
-    M5.Lcd.setCursor(51, 225);
-    M5.Lcd.printf("2A");
-
-    //   M5.Lcd.setCursor(118, 90);
-    //   M5.Lcd.printf("SAVE");
-
-    // bool result1 = Ammeter.saveCalibration2EEPROM(PGA_256, 1024, 1024);
-    // delay(10);
+    resolution = Ameter.getCoefficient() / M5_UNIT_AMETER_PRESSURE_COEFFICIENT;
+    calibration_factor = Ameter.getFactoryCalibration();
 }
 
-void loop(void) {
-    M5.update();
-    if (M5.BtnA.wasPressed()) {
-        Ammeter.setMode(SINGLESHOT);
-        Ammeter.setRate(RATE_8);
-        Ammeter.setGain(PGA_512);
-        now_gain = PGA_512;
-        hope     = pgae512_volt / Ammeter.resolution;
+void loop() {
+    int16_t adc_raw = Ameter.getSingleConversion();
+    float current   = adc_raw * resolution * calibration_factor;
+    Serial.printf("Cal ADC:%.0f\n", adc_raw * calibration_factor);
+    Serial.printf("Cal Current:%.2f mA\n", current);
+    Serial.printf("Raw ADC:%d\n\n", adc_raw);
 
-        for (uint8_t i = 0; i < 10; i++) {
-            volt_raw_list[i] = 0;
-        }
-    }
-
-    float current = Ammeter.getValue();
-
-    volt_raw_list[raw_now_ptr] = Ammeter.adc_raw;
-    raw_now_ptr                = (raw_now_ptr == 9) ? 0 : (raw_now_ptr + 1);
-
-    int count = 0;
-    int total = 0;
-
-    for (uint8_t i = 0; i < 10; i++) {
-        if (volt_raw_list[i] == 0) {
-            continue;
-        }
-        total += volt_raw_list[i];
-        count += 1;
-    }
-
-    if (count == 0) {
-        adc_raw = 0;
-    } else {
-        adc_raw = total / count;
-    }
-
-    M5.Lcd.setTextColor(WHITE, BLACK);
-    M5.Lcd.setCursor(3, 0);
-    M5.Lcd.printf("Hope volt:");
-    M5.Lcd.setCursor(9, 15);
-    M5.Lcd.printf("%.2f mAn", pgae512_volt);
-
-    M5.Lcd.setCursor(3, 37);
-    M5.Lcd.printf("Hope ADC:");
-    M5.Lcd.setCursor(9, 52);
-    M5.Lcd.printf("%d", hope);
-
-    M5.Lcd.setTextColor(WHITE, BLACK);
-    M5.Lcd.setCursor(3, 75);
-    M5.Lcd.printf("Cal volt:");
-    M5.Lcd.fillRect(65, 90, 40, 15, BLACK);
-    M5.Lcd.setCursor(9, 90);
-    M5.Lcd.printf("%.2f mA", current);
-
-    M5.Lcd.setTextColor(WHITE, BLACK);
-    M5.Lcd.setCursor(3, 112);
-    M5.Lcd.printf("Cal ADC:");
-    M5.Lcd.fillRect(15, 127, 40, 15, BLACK);
-    M5.Lcd.setCursor(9, 127);
-    M5.Lcd.printf("%.0f", adc_raw * Ammeter.calibration_factor);
-
-    M5.Lcd.setCursor(3, 150);
-    if (abs(adc_raw) <= hope * 1.005 && abs(adc_raw) >= hope * 0.995) {
-        M5.Lcd.setTextColor(GREEN, BLACK);
-    } else {
-        M5.Lcd.setTextColor(RED, BLACK);
-    }
-    M5.Lcd.printf("RAW ADC:");
-    M5.Lcd.fillRect(15, 165, 40, 15, BLACK);
-    M5.Lcd.setCursor(9, 165);
-    M5.Lcd.printf("%d", adc_raw);
+    M5.Display.clear();
+    M5.Display.setCursor(0, 0);
+    M5.Display.printf("Cal ADC:%.0f\n", adc_raw * calibration_factor);
+    M5.Display.printf("Cal Current:%.2f mA\n", current);
+    M5.Display.printf("Raw ADC:%d\n\n", adc_raw);
+    delay(1000);
 }
