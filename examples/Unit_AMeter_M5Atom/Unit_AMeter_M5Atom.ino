@@ -24,6 +24,7 @@ float resolution         = 0.0;
 float calibration_factor = 0.0;
 
 void setup() {
+    Serial.begin(115200);
     while (!Ameter.begin(&Wire, M5_UNIT_AMETER_I2C_ADDR, 26, 32, 400000U)) {
         Serial.println("Unit Ameter Init Fail");
         delay(1000);

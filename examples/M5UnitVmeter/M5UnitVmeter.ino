@@ -24,6 +24,7 @@ float resolution         = 0.0;
 float calibration_factor = 0.0;
 
 void setup() {
+    Serial.begin(115200);
     while (!Vmeter.begin(&Wire, M5_UNIT_VMETER_I2C_ADDR, 21, 22, 400000U)) {
         Serial.println("Unit Vmeter Init Fail");
         delay(1000);
